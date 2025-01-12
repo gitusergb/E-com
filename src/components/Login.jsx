@@ -1,10 +1,10 @@
-import React from "react";
-import  { useState } from 'react';
+import React ,{ useState }from "react";
 import styled from "styled-components";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/authContext";
+import ChangePass from "./ChangePass";
 
 export const Login= () => {
   const navigate = useNavigate();
@@ -12,16 +12,13 @@ export const Login= () => {
 const [email,setEmail]=useState("");
 const [password,setPassword]=useState("");
 
-      const handleSubmit = async() => {
-          const payload={
-           email,password
-          }
+      const handleSubmit = async(e) => {
+        e.preventDefault()
+          const payload={email,password}
         console.log(payload)
        fetch("http://localhost:9000/users/login",{
         method:'POST',
-        headers:{
-            "Content-type":"application/json"
-        },
+        headers:{"Content-type":"application/json"},
         body:JSON.stringify(payload)
          
        }).then(res=>res.json()).then(data=>{
@@ -58,7 +55,7 @@ const [password,setPassword]=useState("");
         required/>
     <button  onClick={handleSubmit} >Login</button>
 
-    <Link to={"/register"}>Sign Up</Link>
+    <Link to={"/signup"}>SignUp</Link>
     </DIV>
   );
 };

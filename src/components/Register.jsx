@@ -5,7 +5,8 @@ import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useNavigate } from "react-router-dom";
 
-export const Signup= () => {
+export const Signup= (e) => {
+  e.preventDefault();
   const navigate = useNavigate();
 const [fullname,setfullname]=useState("");
 const [email,setEmail]=useState("");

@@ -16,6 +16,7 @@ export const registerUser = (data) => API.post('/register', data);
 export const loginUser = (data) => API.post('/login', data);
 export const getProducts = () => API.get('/allProducts');
 export const addToCart = (data) => API.post('/cart/addToCart', data);
+export const seeCart = (data) => API.get('/cart/seeCart', data);
 export const placeOrder = (data) => API.post('/orders', data);
 
 export default API;

@@ -1,22 +1,28 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
 import './Products.css';
 // import { addToCart } from '../services/api';
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { useNavigate } from "react-router-dom";
 
 const Products = () => {
   const [products, setProducts] = useState([]);
   const [search, setSearch] = useState('');
-  const [message, setMessage] = useState('');
+  const navigate = useNavigate();
+  const token = localStorage.getItem('token');
 
- 
+
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const response = await axios.get('https://bb-nwfw.onrender.com/allProducts'); 
+        const response = await fetch('https://bb-nwfw.onrender.com/allProducts'); 
         // console.log(response.data)
-        setProducts(response.data);
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data = await response.json();
+        setProducts(data);
+        //setProducts(response.data);
       } catch (error) {
         console.error('Error fetching products:', error);
       }
@@ -29,44 +35,52 @@ const Products = () => {
     product.title.toLowerCase().includes(search.toLowerCase())
   );
   const handleAddToCart = async (product) => {
-    try {
-      const userID = localStorage.getItem('userID');
+    if (!token) {
+      toast.error("You need to log in to add items to the cart.");
+      return navigate("/login");
+    }
+    const userID = localStorage.getItem('userID');
+    const fullname = localStorage.getItem('fullname');
+
       if (!userID) {
-        console.log("userID",userID)
-        setMessage('You need to log in to add items to the cart.');
+        console.log("userID", userID);
+        toast.message('You need to log in to add items to the cart.');
         return;
       }
-      const cart = {userID,
-      productId: product.productId || product.id,
+  
+      const cartData = {
+        userID,fullname ,
+        Products: [{
+          productId:product.id,
           title: product.title,
           price: product.price,
-          image: product.images ? product.images[0] : product.image,
-          quantity: product.quantity || 1
+          image: product.images?.[0] || product.images[1]|| "default-image.jpg",
+          quantity:product.quantity || 1}]
       };
-      const response = await axios.post(`${'http://localhost:9000'}/carts/addToCart`,cart, {
+      try {
+      console.log("cartData", `:` ,cartData)
+      const response = await fetch(`http://localhost:9000/carts/addCart?userID=${userID}`, {
+        method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
         },
+        body: JSON.stringify(cartData),
       });
-  console.log(cart,response.status)
-      
-      //return response;
-      // const response = await addToCart(payload);
-
-      if (response.status === 200 || response.status === 201) {
-        setMessage('Product added to cart!');
-        toast.success("Product added to cart!");
+  
+      if (response.ok) {
+        toast.success('Product added to cart!');
+        console.log('userdata', cartData, response.status);
       } else {
-        setMessage('Failed to add product to cart');
-        toast.error("Failed to add product to cart");
-   
+        toast.error('Failed to add product to cart.');
       }
-     
     } catch (err) {
-      setMessage('Failed to add product to cart');
-      toast.dark("Failed to add product to cart");
+    
+      toast.error('Failed to add product to cart.');
+      console.error('Error adding product to cart:', err);
     }
   };
+  
 
   return (
     <div className="products-page">
@@ -82,14 +96,17 @@ const Products = () => {
 
       {/* Product List */}
       <div className="product-list">
-        {filteredProducts.map((product) => (
+        {filteredProducts.length > 0 ?(filteredProducts.map((product) => (
           <div className="product-card" key={product.id}>
             <img src={product.images[0]} alt={product.title} />
             <h3>{product.title}</h3>
             <p>Price: ₹{product.price}</p>
             <button onClick={() => handleAddToCart(product)}>Add to Cart</button> 
           </div>
-        ))}
+        ))
+        ) : (
+          <p>No products found.</p>
+        )}
       </div>
     </div>
   );

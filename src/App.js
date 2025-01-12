@@ -7,6 +7,7 @@ import Cart from './components/Cart';
 import Order from './components/Order';
 import {Login} from './components/Login';
 import {Signup} from './components/Register';
+import ChangePass from './components/ChangePass';
 
 const App = () => {
   return (
@@ -20,6 +21,7 @@ const App = () => {
           <Route path="/products" element={<Products />} />
           <Route path="/cart" element={<Cart />} />
           <Route path="/order" element={<Order />} />
+          <Route path="/changePass" element={<ChangePass />} />
           <Route path="*" element={<div>Page Not Found</div>} /> 
      
         </Routes>
